@@ -1,16 +1,19 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const socketIO = require("socket.io");
+const serverSocketIO = require("socket.io");
+const clientSocket = require("socket.io-client");
+
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server, {
+const gameSocket = serverSocketIO(server, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
 const port = 5000;
+const roomServiceSocket = clientSocket(process.env.WEBSOCKET_URL);
 
 var fs = require('fs');
 var questions = fs.readFileSync('questions.txt').toString().split("\n");
@@ -32,12 +35,19 @@ function getRandomPlayer() {
   return idArray[idArray.length * Math.random() | 0];
 }
 
-app.use(cors());
-app.get("/", (req, res) => {
-  res.status(200).send("Card Game Server");
+roomServiceSocket.on("connect", () => {
+  console.log("Connected to toom service");
+  socket.emit("getRoom");
+});
+roomServiceSocket.on("room", (room) => {
+  console.log(`Room: ${room}`);
+  
+});
+roomServiceSocket.on("disconnect", () => {
+  console.log("Disconnected from server");
 });
 
-io.on("connection", (socket) => {
+gameSocket.on("connection", (socket) => {
   console.log(`A user connected [${socket.id}]`);
 
   socket.on("join", (name) => {
@@ -53,14 +63,14 @@ io.on("connection", (socket) => {
       gameState.question = getQuestion();
     }
     socket.emit("assignId", socket.id);
-    io.emit("gameState", gameState);
+    gameSocket.emit("gameState", gameState);
     console.log(gameState);
   });
 
   socket.on("chooseActivePlayer", (id) => {
     gameState.activePlayer = id;
     gameState.question = getQuestion();
-    io.emit("gameState", gameState);
+    gameSocket.emit("gameState", gameState);
     console.log(gameState);
   });
 
@@ -79,6 +89,7 @@ io.on("connection", (socket) => {
   });
 });
 
+app.use(cors());
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

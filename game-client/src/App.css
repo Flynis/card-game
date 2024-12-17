@@ -1,4 +1,4 @@
-.app-container {
+.app-box {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -12,17 +12,23 @@
 
 .app-header {
   background-color: #5e91fc;
-  padding-left: 2em;
+  padding-left: 8em;
   align-content: center;
   flex-grow: 1;
 }
 
+.logo-box {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+}
+
 .logo {
-  color: #ffffff;
   font-weight: 700;
   font-family: 'Roboto';
-  font-size: 30;
+  font-size: 3em;
   text-align: left;
+  margin: 0;
 }
 
 .game-parent {
@@ -31,8 +37,8 @@
   justify-content: center;
 }
 
-.game-container {
-  width: 80%;
+.game-box {
+  width: 85%;
   height: inherit;
   display: flex;
   flex-direction: column;
@@ -48,11 +54,12 @@
 }
 
 .room-number-label {
-  color: #002354;
-  font-weight: 700;
+  color: #132f61;
+  font-weight: 600;
   font-family: 'Roboto';
-  font-size: 18;
+  font-size: 2em;
   text-align: center;
+  margin: 0 2em 0 0;
 }
 
 .question-parent {
@@ -61,23 +68,14 @@
   align-items: stretch;
   justify-content: center;
   flex-direction: row;
-}
-
-.question-container {
-  display: flex;
-  background-color: #5e91fc;
-  justify-content: center;
-  align-items: center;
-  height: inherit;
-  width: 80%;
-  border-radius: 10%;
+  position: relative;
 }
 
 .question-label {
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 600;
   font-family: 'Roboto';
-  font-size: 18;
+  font-size: 1.3em;
   text-align: center;
 }
 

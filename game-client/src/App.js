@@ -1,14 +1,14 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
+import { Avatar, Stack } from "@mui/material";
 import { io } from "socket.io-client";
+import { OutlinedButton } from './components/OutlinedButton';
+import { QuestionBox } from './components/QuestionBox';
 
 const socket = io("http://localhost:5000");
 
@@ -50,28 +50,57 @@ function App() {
     };
   }, []); 
 
-
   return (
-    <div className="app-container">
+    <div className="app-box">
       <header className="app-header">
-        <p className="logo">
-          TeamSoul
-        </p>
+        <div className="logo-box">
+          <p className="logo" style={{color: "black"}}>
+            Team
+          </p>
+          <p className="logo" style={{color: "white"}}>
+            Soul
+          </p>
+        </div>
       </header>
       <div className="game-parent">
-        <div className="game-container">
+        <div className="game-box">
           <div className="game-header">
-            <Button variant="outlined">Выйти из игры</Button>
+            <OutlinedButton variant="outlined">Выйти из игры</OutlinedButton>
             <p className="room-number-label">Комната 111</p>
-            <Button variant="outlined">Правила</Button>
+            <OutlinedButton variant="outlined">Правила</OutlinedButton>
           </div>
           <div className="question-parent">
-            <div className="question-container">
+            <QuestionBox 
+              elevation={24} 
+              sx={{
+                position: 'absolute', 
+                zIndex: '1', 
+                margin: '1em 2em 0 0',
+                background: "linear-gradient(150deg, #0142ba, #0073dd)",
+              }}
+            />
+            <QuestionBox 
+              elevation={12} 
+              sx={{
+                position: 'absolute', 
+                zIndex: '2', 
+                margin: '0.5em 1em 0 0',
+                background: "linear-gradient(150deg, #0051e1, #0073dd)",
+              }}
+            />
+            <QuestionBox 
+              elevation={3} 
+              sx={{
+                position: 'absolute', 
+                zIndex: '3',
+                background: "linear-gradient(135deg, #0b65ff, #7ce1fe)",
+              }}
+            >
               <p className="question-label">
                 {gameState.question}
               </p>
+            </QuestionBox>
             </div>
-          </div>
           <div className="user-list-parent">
             <List component={Stack} direction="row" sx={{ width: '100%', bgcolor: 'background.paper' }}>
               {[0, 1, 2, 3].map((value) => {

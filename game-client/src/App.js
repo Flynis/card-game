@@ -1,3 +1,4 @@
+'use client';
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import List from '@mui/material/List';
@@ -8,6 +9,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import { Avatar, Stack } from "@mui/material";
 import { io } from "socket.io-client";
 import { OutlinedButton } from './components/OutlinedButton';
+import AvatarBox from './components/AvatarBox';
 import { QuestionBox } from './components/QuestionBox';
 
 const socket = io("http://localhost:5000");
@@ -15,22 +17,33 @@ const socket = io("http://localhost:5000");
 function App() {
   const [id, setId] = useState("");
   const [gameState, setGameState] = useState({
-    question: "Ожидание игроков",
-    activePlayer: -1,
-    players: new Map(),
+    question: "",
+    activePlayer: "",
+    players: [],
+    idArray: [],
     status: ""
   });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
+
+  function getQuestionLabelText() {
+    switch (gameState.status) {
+      case "started": return gameState.question;
+      case "ended": return "Игра окончена";
+      default: return "Ожидание игроков";
+    }
+  }
 
   useEffect(() => {
     socket.on("connect", () => {
       console.log("Connected");
-      socket.emit("join", "Ilya");
+      socket.emit("join");
     });
 
-    socket.on("assignId", (assignedId) => {
-      setId(assignedId);
-      console.log(`Assigned id: ${assignedId}`);
+    socket.on("joinAck", (res) => {
+      setId(res.id);
+      setRoomNumber(res.roomNumber);
+      console.log(`Assigned id: ${res.id}`);
+      console.log(`Room number: ${res.roomNumber}`);
     });
 
     socket.on("gameState", (newGameState) => {
@@ -44,11 +57,17 @@ function App() {
 
     return () => {
       socket.off("connect");
-      socket.off("assignId");
+      socket.off("joinAck");
       socket.off("gameState");
       socket.off("disconnect");
     };
   }, []); 
+
+  function onClick(index) {
+    var player = gameState.idArray[index]
+    console.log(`Choose player [${player}]`)
+    socket.emit("chooseActivePlayer", player);
+  }
 
   return (
     <div className="app-box">
@@ -65,9 +84,15 @@ function App() {
       <div className="game-parent">
         <div className="game-box">
           <div className="game-header">
-            <OutlinedButton variant="outlined">Выйти из игры</OutlinedButton>
-            <p className="room-number-label">Комната 111</p>
-            <OutlinedButton variant="outlined">Правила</OutlinedButton>
+            <OutlinedButton variant="outlined">
+              Выйти из игры
+            </OutlinedButton>
+            <p className="room-number-label">
+              {`Комната ${roomNumber}`}
+            </p>
+            <OutlinedButton variant="outlined">
+              Правила
+            </OutlinedButton>
           </div>
           <div className="question-parent">
             <QuestionBox 
@@ -97,23 +122,26 @@ function App() {
               }}
             >
               <p className="question-label">
-                {gameState.question}
+                {getQuestionLabelText()}
               </p>
             </QuestionBox>
             </div>
           <div className="user-list-parent">
-            <List component={Stack} direction="row" sx={{ width: '100%', bgcolor: 'background.paper' }}>
-              {[0, 1, 2, 3].map((value) => {
-                const labelId = `checkbox-list-secondary-label-${value}`;
+            <List component={Stack} 
+              direction="row" 
+              sx={{ 
+                width: 'fit-content', 
+                maxWidth: '100%', 
+                bgcolor: 'background.paper',
+              }}
+            >
+              {gameState.players
+                .filter((_, index) => { return index < gameState.idArray.length; })
+                .map((value, index) => {
                 return (
                   <ListItem key={value} disablePadding >
-                    <ListItemButton>
-                      <ListItemAvatar>
-                        <Avatar>
-                          H
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText id={labelId} primary={`Item ${value + 1}`} />
+                    <ListItemButton onClick={() => onClick(index)}>
+                      <AvatarBox userName={value}/>
                     </ListItemButton>
                   </ListItem>
                 );

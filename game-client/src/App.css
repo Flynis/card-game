@@ -81,4 +81,21 @@
 
 .user-list-parent {
   flex-grow: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-box {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-label {
+  color: black;
+  font-weight: 500;
+  font-family: 'Roboto';
+  font-size: 1.2em;
 }

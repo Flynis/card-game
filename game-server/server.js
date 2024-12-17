@@ -27,7 +27,7 @@ for(i in questions) {
 var roomNumber = -1;
 var gameState = {
   question: "",
-  activePlayer: -1,
+  activePlayer: "",
   players: [],
   idArray: [],
   status: "wait players"
@@ -60,7 +60,7 @@ gameSocket.on("connection", (socket) => {
   socket.on("join", () => {
     console.log(`Join request from ${socket.id}`);
     gameState.idArray.push(socket.id);
-    if (gameState.players.length > 1) {
+    if (gameState.players.length > 1 && gameState.status != "started") {
       gameState.status = "started"
       gameState.activePlayer = getRandomPlayer();
       gameState.question = getQuestion();
@@ -85,7 +85,6 @@ gameSocket.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
     gameState.idArray = gameState.idArray.filter(e => e !== socket.id)
-    gameState.players.splice(0, 1);
     if (gameState.players.length < 2) {
       gameState.status = "ended"
       roomServiceSocket.emit("gameStateUpdate", gameState.status);

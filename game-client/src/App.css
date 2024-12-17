@@ -1,0 +1,86 @@
+.app-container {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+  width: 100%;
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+}
+
+.app-header {
+  background-color: #5e91fc;
+  padding-left: 2em;
+  align-content: center;
+  flex-grow: 1;
+}
+
+.logo {
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Roboto';
+  font-size: 30;
+  text-align: left;
+}
+
+.game-parent {
+  flex-grow: 13;
+  display: flex;
+  justify-content: center;
+}
+
+.game-container {
+  width: 80%;
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.game-header {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.room-number-label {
+  color: #002354;
+  font-weight: 700;
+  font-family: 'Roboto';
+  font-size: 18;
+  text-align: center;
+}
+
+.question-parent {
+  flex-grow: 4;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.question-container {
+  display: flex;
+  background-color: #5e91fc;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
+  width: 80%;
+  border-radius: 10%;
+}
+
+.question-label {
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Roboto';
+  font-size: 18;
+  text-align: center;
+}
+
+.user-list-parent {
+  flex-grow: 2;
+}

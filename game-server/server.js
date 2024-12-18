@@ -3,8 +3,8 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const serverSocketIO = require("socket.io");
-const clientSocket = require("socket.io-client");
-
+const Stomp = require("stompjs");
+const SockJS = require("sockjs-client");
 
 const app = express();
 const server = http.createServer(app);
@@ -15,8 +15,8 @@ const gameSocket = serverSocketIO(server, {
   },
 });
 const port = 5000;
-const roomServiceSocket = clientSocket(process.env.WEBSOCKET_URL);
-
+const sockJS = new SockJS(process.env.WEBSOCKET_URL);
+stompClient = Stomp.over(sockJS);
 
 var fs = require('fs');
 var questions = fs.readFileSync('questions.txt').toString().split("\n");
@@ -24,7 +24,7 @@ console.log("Questions:");
 for(i in questions) {
   console.log(questions[i]);
 };
-var roomNumber = -1;
+const roomNumber = process.env.ROOM_ID;
 var gameState = {
   question: "",
   activePlayer: "",
@@ -40,18 +40,36 @@ function getRandomPlayer() {
 }
 
 
-roomServiceSocket.on("connect", () => {
-  console.log("Connected to room service");
-  roomServiceSocket.emit("getRoom");
-});
-roomServiceSocket.on("room", (room) => {
+function sendGameState() {
+  var state = {
+    status: gameState.status,
+  };
+  stompClient.send("/app/game/status", {}, JSON.stringify(state));
+}
+function onRoomSrvMessageReceived(room) {
   console.log(room);
-  roomNumber = room.id;
-  gameState.players = room.players;
-});
-roomServiceSocket.on("disconnect", () => {
+  gameState.players = room.map((value) => value.username);
+}
+function onRoomSrvConnected() {
+  console.log("Connected to room service");
+  stompClient.subscribe(
+    `/game/${roomNumber}/queue/messages`,
+    onRoomSrvMessageReceived
+  );
+  sendGameState();
+  var roomRequest = {
+    gameId: roomNumber,
+    roomId: roomNumber,
+  };
+  stompClient.send("/app/room/users", {}, JSON.stringify(roomRequest));
+}
+function onRoomSrvError(err) {
+  console,log(err);
+}
+function onRoomSrvDisconnect() {
   console.log("Disconnected from room service");
-});
+}
+stompClient.connect({}, onRoomSrvConnected, onRoomSrvError, onRoomSrvDisconnect);
 
 
 gameSocket.on("connection", (socket) => {
@@ -64,7 +82,7 @@ gameSocket.on("connection", (socket) => {
       gameState.status = "started"
       gameState.activePlayer = getRandomPlayer();
       gameState.question = getQuestion();
-      roomServiceSocket.emit("gameStateUpdate", gameState.status);
+      sendGameState();
     }
     var response = {
       id: socket.id,
@@ -87,7 +105,7 @@ gameSocket.on("connection", (socket) => {
     gameState.idArray = gameState.idArray.filter(e => e !== socket.id)
     if (gameState.players.length < 2) {
       gameState.status = "ended"
-      roomServiceSocket.emit("gameStateUpdate", gameState.status);
+      sendGameState();
     }
     if (gameState.activePlayer == socket.id) {
       gameState.activePlayer = getRandomPlayer();
